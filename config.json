@@ -1,0 +1,28 @@
+{
+    "seed": 777,
+    "model_name": "klue/bert-base",
+    
+    "data_path": "../data/train/train.csv",
+    "label_dict_path": "../data/dict_label_to_num.pkl",
+
+    "data_dir": "../data/", 
+    "save_dir": "saved",
+        
+
+    "max_epoch": 1,
+    "batch_size": 128,
+    "shuffle": true,
+    "validation_split": 0.1,
+    "num_workers": 4,
+    "lr": 1e-4,
+    "num_labels": 30,
+    
+    "optimizer_name": "AdamW",
+    "loss": "nll_loss", 
+    "metrics": ["accuracy", "top_k_acc"],
+    
+
+    "is_scheduler": false,
+    "is_early_stopping": false,
+    "is_monitor": true
+}
