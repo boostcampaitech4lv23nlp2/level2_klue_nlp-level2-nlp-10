@@ -24,11 +24,12 @@ __pycache__/
 ​
 # C extensions
 *.so
-
+*.json
 
 ### 
-data/*
-logs/*
+.empty
+data/
+logs/
 */*.sh
 */wandb
 
