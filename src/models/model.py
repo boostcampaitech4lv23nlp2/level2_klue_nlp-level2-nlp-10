@@ -59,10 +59,8 @@ class KLUEModel(pl.LightningModule):
     def predict_step(self, batch, batch_idx):
         x = batch
         logits = self(x)
-        print(logits.shape)
-        probs = F.softmax(logits, dim= 1)
-        results = torch.argmax(logits, axis= 1)
-        return probs.squeeze(), results.squeeze()
+        probs = F.softmax(logits, dim= 0)
+        return probs.squeeze()
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr)

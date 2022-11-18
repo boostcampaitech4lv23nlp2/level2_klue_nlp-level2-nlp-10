@@ -3,6 +3,7 @@ import pandas as pd
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
+from torch.utils.data.dataloader import default_collate
 
 from utils import *
 import pytorch_lightning as pl
@@ -20,7 +21,7 @@ class KLUEDataset(Dataset):
     if self.labels:
       return len(self.labels)
     else:
-      return len(self.dataset)
+      return len(self.dataset['input_ids'])
   
   def __getitem__(self, idx):
     data = {key: val[idx].clone().detach() for key, val in self.dataset.items()}
@@ -61,7 +62,8 @@ class Dataloader(pl.LightningDataModule):
     else:
       self.dataloader = DataLoader(self.dataset, 
                                    batch_size=self.batch_size,
-                                   num_workers = 4, )
+                                   num_workers = 4, 
+                                   collate_fn=default_collate)
   def train_dataloader(self):
     return self.dataloader
   
@@ -123,9 +125,10 @@ class Dataloader(pl.LightningDataModule):
       
     out_dataset = pd.DataFrame({'id':dataset['id'], 'sentence':dataset['sentence'],'subject_entity':subject_entity,'object_entity':object_entity,'label':dataset['label'],})
     tokenized_dataset = self.tokenize_dataset(out_dataset)
+    
     if not self.is_test:
       str_label = dataset['label'].values
-      self.num_labels, num_label = label_to_num(str_label, self.label_dict_path)
+      _, num_label = label_to_num(str_label, self.label_dict_path)
       return tokenized_dataset, num_label
     return tokenized_dataset, None
 

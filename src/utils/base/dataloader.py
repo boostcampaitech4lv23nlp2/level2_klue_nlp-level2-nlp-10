@@ -19,16 +19,16 @@ class BaseDataLoader(DataLoader):
         self.n_samples = len(dataset)
 
         self.sampler, self.valid_sampler = self._split_sampler(self.validation_split)
-
         self.init_kwargs = {
-            'dataset': dataset,
-            'batch_size': batch_size,
-            'shuffle': self.shuffle,
-            'collate_fn': collate_fn,
-            'num_workers': num_workers,
-            'pin_memory': pin_memory
-        }
+                'dataset': dataset,
+                'batch_size': batch_size,
+                'shuffle': self.shuffle,
+                'collate_fn': collate_fn,
+                'num_workers': num_workers,
+                'pin_memory': pin_memory,
+            }
         super().__init__(sampler=self.sampler, **self.init_kwargs)
+        
 
     def _split_sampler(self, split):
         if split == 0.0 or self.is_test:

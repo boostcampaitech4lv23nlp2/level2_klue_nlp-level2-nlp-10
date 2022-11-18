@@ -39,7 +39,7 @@ def set_seed(random_seed):
     np.random.seed(random_seed)
     
 def print_config(conf):
-    print_msg('Print Configuration....', 'INFO')
+    print_msg('Printing Configuration....', 'INFO')
     print('='*60)
     print(f'CONFIGURATION')
     print(f'MODEL NAME    | {conf.model_name}')
