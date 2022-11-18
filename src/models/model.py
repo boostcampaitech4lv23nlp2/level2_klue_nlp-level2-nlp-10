@@ -6,7 +6,7 @@ import numpy as np
 import pytorch_lightning as pl
 from transformers import AutoConfig, AutoModelForSequenceClassification
   
-
+# FIXME : comput_metrics가 실행되지 않음
 class KLUEModel(pl.LightningModule):
     def __init__(self, conf, device, eval_func=None, is_scheduler=False):
         """
@@ -59,10 +59,10 @@ class KLUEModel(pl.LightningModule):
     def predict_step(self, batch, batch_idx):
         x = batch
         logits = self(x)
-        return logits.squeeze()
-        prob = F.softmax(logits, dim= 1)
-        result = np.argmax(logits, axis= 1)
-        return prob.squeeze(), result.squeeze()
+        print(logits.shape)
+        probs = F.softmax(logits, dim= 1)
+        results = torch.argmax(logits, axis= 1)
+        return probs.squeeze(), results.squeeze()
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr)

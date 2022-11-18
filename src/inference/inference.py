@@ -4,6 +4,7 @@ from models.model import KLUEModel
 from models.metrics import compute_metrics
 import pytorch_lightning as pl
 
+# FIXME : 전체적으로 testdata를 실행하지 않는 오류 존재. 수정 필요
 def main(conf, version, model_path, is_checkpoint=False):
     print_config(conf) # configuration parameter 확인 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -32,7 +33,7 @@ def main(conf, version, model_path, is_checkpoint=False):
     predictions = trainer.predict(model=model, datamodule=test_dataloader)
     print(predictions)
     input('>>>>')
-    pred_answer = num_to_label(predictions, conf.num_to_label_dict_path) # 숫자로 된 class를 원래 문자열 라벨로 변환.
+    pred_answer = num_to_label(pred_answers, conf.num_to_label_dict_path) # 숫자로 된 class를 원래 문자열 라벨로 변환.
     print_msg('예측이 완료되었습니다', 'INFO')
     
     print(pred_answer)
