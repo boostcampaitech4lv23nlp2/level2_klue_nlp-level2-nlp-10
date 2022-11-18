@@ -1,6 +1,7 @@
 {
     "seed": 777,
-    "model_name": "klue/bert-base",
+    "project_name": "baseline",
+    "model_name": "klue/roberta-small",
     "num_labels": 30,
     
     "train_data_path": "../data/train/train.csv",
@@ -14,7 +15,7 @@
     "wandb_dir": "wandb_checkpoints",
     "submission_dir": "submissions",
         
-    "max_epoch": 1,
+    "max_epoch": 10,
     "batch_size": 128,
     "shuffle": true,
     "validation_split": 0.1,

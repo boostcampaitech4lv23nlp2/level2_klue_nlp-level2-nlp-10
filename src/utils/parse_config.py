@@ -4,6 +4,7 @@ from typing import NamedTuple
 class ConfigParser(NamedTuple):
     """ Hyperparameters Configuration"""
     seed: int = 777
+    project_name: str = "baseline",
     model_name: str = "temp"
     num_labels: int = 30
     
