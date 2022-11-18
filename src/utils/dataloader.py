@@ -91,11 +91,8 @@ class Dataloader(pl.LightningDataModule):
     dataset, labels = self.preprocessing(dataset)
     dataset = KLUEDataset(dataset, labels)
     return dataset
-   
-  def preprocessing(self, dataset):
-    """ 처음 불러온 csv 파일을 원하는 형태의 DataFrame으로 변경 시켜줍니다."""
-    
-    def tokenize_dataset(dataset):
+  
+  def tokenize_dataset(self, dataset):
       """ tokenizer에 따라 sentence를 tokenizing 합니다."""
       concat_entity = []
       for e01, e02 in zip(dataset['subject_entity'], dataset['object_entity']):
@@ -112,6 +109,9 @@ class Dataloader(pl.LightningDataModule):
                                             add_special_tokens=True,
                                             )
       return tokenized_sentences
+  
+  def preprocessing(self, dataset):
+    """ 처음 불러온 csv 파일을 원하는 형태의 DataFrame으로 변경 시켜줍니다."""
     
     subject_entity = []
     object_entity = []
@@ -122,7 +122,7 @@ class Dataloader(pl.LightningDataModule):
       object_entity.append(j)
       
     out_dataset = pd.DataFrame({'id':dataset['id'], 'sentence':dataset['sentence'],'subject_entity':subject_entity,'object_entity':object_entity,'label':dataset['label'],})
-    tokenized_dataset = tokenize_dataset(out_dataset)
+    tokenized_dataset = self.tokenize_dataset(out_dataset)
     if not self.is_test:
       str_label = dataset['label'].values
       self.num_labels, num_label = label_to_num(str_label, self.label_dict_path)
