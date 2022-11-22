@@ -2,7 +2,7 @@ import pandas as pd
 import re
 
 
-def extract_entity(input_df: pd.DataFrame, tokenizer=None, drop_column=False):
+def extract_entity(input_df: pd.DataFrame, tokenizer=None, drop_column=False) -> pd.DataFrame:
     '''
     데이터셋 DataFrame을 입력받고, entity의 ['word', 'start_idx', 'end_idx', 'type'] 요소들을 추출하여 새 column으로 생성합니다.
     추가되는 새 column들은 다음과 같습니다.
