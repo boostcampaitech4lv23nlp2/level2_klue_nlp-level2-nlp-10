@@ -8,7 +8,7 @@ train_data_path: "../data/train/train.csv"
 test_data_path: "../data/test/test_data.csv"
 label_to_num_dict_path: "../data/dict_label_to_num.pkl"
 num_to_label_dict_path: "../data/dict_num_to_label.pkl"
-submission_path: "../data/sample_submission.csv",
+submission_path: "../data/sample_submission.csv"
 
 data_dir: "../data/"
 save_dir: "saved"
@@ -16,7 +16,7 @@ wandb_dir: "wandb_checkpoints"
 submission_dir: "submissions"
 
 max_epoch: 5
- batch_size: 32
+batch_size: 32
 shuffle: True
 validation_split: 0.1
 num_workers: 4

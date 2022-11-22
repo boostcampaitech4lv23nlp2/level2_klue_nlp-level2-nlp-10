@@ -26,8 +26,8 @@ def klue_re_auprc(probs, labels):
     score = np.zeros((30,))
     
     for c in range(30):
-        targets_c = labels.take([c], axis=0).ravel()
-        preds_c = probs.take([c], axis=0).ravel()
+        targets_c = labels.take([c], axis=1).ravel()
+        preds_c = probs.take([c], axis=1).ravel()
         precision, recall, _ = sklearn.metrics.precision_recall_curve(targets_c, preds_c)
         score[c] = sklearn.metrics.auc(recall, precision)
     return np.average(score) * 100.0

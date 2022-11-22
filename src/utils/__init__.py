@@ -3,7 +3,6 @@ import random
 import torch
 import numpy as np
 import pickle as pickle
-from .parse_config import *
 from .logger import *
 from .base.dataloader import BaseDataLoader
 
