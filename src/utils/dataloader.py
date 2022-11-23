@@ -35,7 +35,7 @@ class KLUEDataset(Dataset):
 class Dataloader(pl.LightningDataModule):
   """ Dataset을 불러오기 위한 dataloader class."""
 
-  def __init__(self, model_name, data_path, label_dict_path, batch_size=64, is_test=False):
+  def __init__(self, model_name, tokenizer_name, data_path, label_dict_path, batch_size=64, is_test=False, validation_split=0.1):
     """_summary_
 
     Args:
@@ -47,7 +47,7 @@ class Dataloader(pl.LightningDataModule):
     """
     super().__init__()
     self.is_test = is_test
-    self.tokenizer = AutoTokenizer.from_pretrained(model_name, max_length=160)
+    self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_name, max_length=160)
     self.batch_size = batch_size
     self.label_dict_path = label_dict_path
     self.data_path = data_path
@@ -58,7 +58,7 @@ class Dataloader(pl.LightningDataModule):
                                         shuffle=True,
                                         num_workers = 4, 
                                         is_test=self.is_test, 
-                                        validation_split=0.2)
+                                        validation_split=validation_split)
     else:
       self.dataloader = DataLoader(self.dataset, 
                                    batch_size=self.batch_size,

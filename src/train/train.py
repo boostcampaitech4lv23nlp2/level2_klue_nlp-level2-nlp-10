@@ -20,10 +20,13 @@ def main(conf, version, is_monitor, is_scheduler):
 
     # load dataset & dataloader    
     train_dataloader = Dataloader(conf.model_name, 
+                                  conf.tokenizer_name,
                                   conf.train_data_path,
                                   conf.label_to_num_dict_path, 
                                   conf.batch_size,
-                                  is_test = False)
+                                  is_test = False,
+                                  validation_split=conf.validation_split
+                                  )
     # load model 
     model = KLUEModel(conf, 
                       device, 
@@ -34,8 +37,8 @@ def main(conf, version, is_monitor, is_scheduler):
     # learning rate monitoring을 위한 콜백함수 선언
     lr_monitor = pl.callbacks.LearningRateMonitor(logging_interval='step')
     model_name = conf.model_name.replace('/', '_')
-    if is_monitor:
-        wandb_logger = WandbLogger(project = model_name, entity='boost2end',
+    if is_monitor==True:
+        wandb_logger = WandbLogger(project = conf.project_name, entity='boost2end',
                                    save_dir = os.path.join(conf.data_dir, conf.wandb_dir))
         trainer = pl.Trainer(accelerator='gpu', devices=1,
                              max_epochs=conf.max_epoch, log_every_n_steps=1, logger=wandb_logger,

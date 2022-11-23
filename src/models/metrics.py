@@ -1,5 +1,6 @@
-from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
-
+from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score, precision_recall_curve, auc
+import sklearn
+import numpy as np
 
 def klue_re_micro_f1(preds, labels):
     """KLUE-RE micro f1 (except no_relation)"""
@@ -22,8 +23,8 @@ def klue_re_micro_f1(preds, labels):
 def klue_re_auprc(probs, labels):
     """KLUE-RE AUPRC (with no_relation)"""
     labels = np.eye(30)[labels]
-
     score = np.zeros((30,))
+    
     for c in range(30):
         targets_c = labels.take([c], axis=1).ravel()
         preds_c = probs.take([c], axis=1).ravel()
@@ -31,16 +32,13 @@ def klue_re_auprc(probs, labels):
         score[c] = sklearn.metrics.auc(recall, precision)
     return np.average(score) * 100.0
 
-def compute_metrics(pred):
+def compute_metrics(probs, preds, labels):
   """ validation을 위한 metrics function """
-  labels = pred.label_ids
-  preds = pred.predictions.argmax(-1)
-  probs = pred.predictions
 
   # calculate accuracy using sklearn's function
   f1 = klue_re_micro_f1(preds, labels)
   auprc = klue_re_auprc(probs, labels)
-  acc = accuracy_score(labels, preds) # 리더보드 평가에는 포함되지 않습니다.
+  acc = accuracy_score(labels, preds) 
 
   return {
       'micro f1 score': f1,
