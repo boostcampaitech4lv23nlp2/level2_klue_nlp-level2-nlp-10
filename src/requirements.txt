@@ -2,3 +2,5 @@ pandas==1.1.5
 scikit-learn~=0.24.1
 transformers==4.10.0
 omegaconf==2.2.3
+black==22.10.0
+isort==5.10.1
