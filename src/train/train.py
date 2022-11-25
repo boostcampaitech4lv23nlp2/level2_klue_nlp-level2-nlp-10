@@ -19,18 +19,20 @@ def main(conf, version, is_monitor, is_scheduler):
 
     # load dataset & dataloader
     train_dataloader = Dataloader(
-        conf.model_name,
-        conf.tokenizer_name,
-        conf.train_data_path,
-        conf.label_to_num_dict_path,
-        conf.batch_size,
-        is_test=False,
-        validation_split=conf.validation_split,
-    )
+                            conf.tokenizer_name,
+                            conf.train_data_path,
+                            conf.label_to_num_dict_path, 
+                            max_length = conf.max_length,
+                            validation_data_path = conf.validation_data_path,
+                            batch_size = conf.batch_size,
+                            is_test=False,
+                            validation_split=conf.validation_split,
+                                )
     # load model
     model = KLUEModel(
         conf, device, eval_func=compute_metrics, is_scheduler=is_scheduler
     )
+    model.to(device)
 
     # learning rate monitoring을 위한 콜백함수 선언
     lr_monitor = pl.callbacks.LearningRateMonitor(logging_interval="step")
