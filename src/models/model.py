@@ -97,5 +97,5 @@ class KLUEModel(pl.LightningModule):
             )
             return [optimizer], [lr_scheduler]
         else:
-            return None
+            return optimizer
 
