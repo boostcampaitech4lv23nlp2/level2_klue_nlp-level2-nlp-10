@@ -190,3 +190,53 @@ class Dataloader(pl.LightningDataModule):
     return tokenized_dataset, None
 
 
+ 
+class KFoldDataloader(Dataloader):
+
+  def __init__(
+    self, 
+    tokenizer_name, 
+    data_path, 
+    label_dict_path, 
+    seed = 3431, 
+    max_length = 256, 
+    validation_data_path = None, 
+    batch_size = 64, 
+    is_test = False, 
+    validation_split = 0.1,
+    k = 0, 
+    num_folds = 5):
+    
+    super().__init__(tokenizer_name, 
+                     data_path, 
+                     label_dict_path, 
+                     max_length = max_length,
+                     validation_data_path = validation_data_path, 
+                     batch_size=batch_size, 
+                     is_test=is_test,
+                     validation_split=validation_split)
+    
+    self.k = k 
+    self.num_folds = num_folds
+    self.seed = seed
+
+  def setup(self, stage='fit'):
+    dataset, val_dataset = None, None
+    print_msg('Loading Dataset...', 'INFO')
+    dataset = self.load_data(self.data_path)
+    dataset, labels = self.preprocessing(dataset)
+    self.dataset = KLUEDataset(dataset, labels)
+    self.val_dataset = KLUEDataset(dataset, labels)
+  
+    kf = KFold(n_splits=self.num_folds, shuffle=True, random_state=self.seed)
+    all_splits = [k for k in kf.split(self.dataset)]
+    
+    # fold한 index에 따라 데이터셋 분할
+    train_indexes, val_indexes = all_splits[self.k]
+    train_indexes, val_indexes = train_indexes.tolist(), val_indexes.tolist()
+    
+    self.dataset.set_kfold_index(train_indexes)
+    self.val_dataset.set_kfold_index(val_indexes)
+    
+
+  
