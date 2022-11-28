@@ -2,7 +2,158 @@ import re
 
 import pandas as pd
 
+def fix_entity_index(
+    sentence: str, subject_entity: str, object_entity: str
+    ) -> tuple:
+    """
+    전처리가 완료된 문장 sentence와 원본 데이터의 subject_entity, object_entity를 입력으로 받습니다.
+    전처리로 인해 위치가 바뀐 subject_word와 object_word의 start_index와 end_index를 수정하여 수정된 (subject_entity, object_entity)의 tuple을 리턴합니다.
+    """
+    # str의 entity를 dict로 변경합니다.
+    dict_subject = eval(subject_entity)
+    dict_object = eval(object_entity)
+    
+    # entity dict에 속한 값을 가져옵니다.
+    s_word, s_start, s_end, s_typ = dict_subject.values()
+    o_word, o_start, o_end, o_typ = dict_object.values()
+    
+    # 전처리된 문장 sentence에서 subject entity의 word를 찾아 matched에 저장합니다.
+    # finditer를 사용하는 이유는 찾고자 하는 word가 sentence내에 여러개 있을 수 있기 때문입니다.
+    matched = re.finditer(re.escape(s_word), sentence)
+    new_standard = float("inf")
 
+    # 매치된 문장 내 단어 정보를 순회합니다.
+    for word in matched:
+        # 전처리 이전 문장의 start_index(변수명: s_start)를 기준으로, 전처리된 문장 내 word 위치와의 차이를 계산하여 차이가 가장 작은 단어를 탐색합니다
+        start_standard = abs(s_start - word.span()[0])
+        if new_standard >= start_standard:
+            s, e = word.span()[0], word.span()[1] - 1
+            new_standard = start_standard
+    dict_subject['start_idx'], dict_subject['end_idx']= s, e
+
+    # 동일한 작업을 dict_object에도 수행합니다.
+    matched = re.finditer(re.escape(o_word), sentence)
+    new_standard = float("inf")
+
+    for word in matched:
+        start_standard = abs(o_start - word.span()[0])
+        if new_standard >= start_standard:
+            s, e = word.span()[0], word.span()[1] - 1
+            new_standard = start_standard
+    dict_object['start_idx'], dict_object['end_idx']= s, e
+    
+    dict_subject = str(dict_subject)
+    dict_object = str(dict_object)
+    
+    return (dict_subject, dict_object)
+
+def preprocess_double_quotation(sts: str) -> str:
+    """
+    큰따옴표가 중복으로 사용될 경우 문장을 전처리하여 리턴합니다.
+    큰따옴표 사이에 정보가 있을 경우에는 단순 중복 큰따옴표만 단일 큰따옴표로 교체합니다.
+    괄호로 둘러쌓여있거나 큰따옴표 사이에 정보가 없을 경우 해당 부분을 삭제합니다.
+    """
+    result = sts
+
+    matched_list = re.findall('"".*?""', result)
+    for word in matched_list:
+        result = result.replace(word, word[1:-1])
+
+    matched_list = re.findall('\(""\)', result)
+    for word in matched_list:
+        result = result.replace(word, '')
+
+    matched_list = re.findall('""', result)
+    for word in matched_list:
+        result = result.replace(word, '')
+
+    matched_list = re.findall('  ', result)
+    for word in matched_list:
+        result = result.replace(word, ' ')
+
+    return result
+
+def preprocess_overlapped_bracket(sts: str) -> str:
+    """
+    중복된 내용을 담고 있는 괄호가 사용될 경우 중복된 내용을 삭제하여 문장을 전처리하여 리턴합니다.
+    """
+    result = sts
+
+    matched_list = re.finditer('\([^\(\)]+\)', result)
+    idx = ()
+    word = ''
+
+    for match in matched_list:
+        idx_2 = match.span()
+        word_2 = match.group()
+        if word == word_2 and idx[1] == idx_2[0]:
+            result = result.replace(word * 2, word)
+        idx = idx_2
+        word = word_2
+
+    return result
+
+def preprocess_double_sqbracket(sts: str) -> str:
+    """
+    사각형 괄호가 중복으로 사용될 경우 단일 사각형 괄호로 교체하여 문장을 전처리하여 리턴합니다.
+    """
+    result = sts
+    result = result.replace('[[', '[')
+    result = result.replace(']]', ']')
+
+    return result
+
+def preprocess_spaced_comma(sts: str) -> str:
+    """
+    양쪽 공백으로 둘러 쌓인 쉼표와 중복 쉼표가 사용될 경우 앞 공백을 삭제하거나 단일 쉼표로 교체하여 문장을 전처리하여 리턴합니다.
+    """
+    result = sts
+    result = result.replace(" , ", ", ")
+    result = result.replace(",,", ",")
+
+    return result
+
+def preprocess_double_space(sts: str) -> str:
+    """
+    중복 공백이 사용될 경우 단일 공백으로 교체하여 문장을 전처리하여 리턴합니다.
+    """
+    result = sts
+    result = result.replace("  ", " ")
+
+    return result
+
+def preprocess_double_dash(sts: str) -> str:
+    """
+    중복 대쉬 기호가 사용될 경우 단일 대쉬 기호로 교체하여 문장을 전처리하여 리턴합니다.
+    """
+    result = sts
+    result = result.replace("--", "-")
+
+    return result
+
+def data_cleansing(input_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    전체 DataFrame을 입력으로 받고 각 row마다 문장을 전처리하고 entity 정보를 수정하여 수정된 DataFrame을 리턴합니다.
+    """
+    df = input_df.copy()
+
+    for row in df.iterrows():
+        idx, sentence, subject_entity, object_entity = row[1].id, row[1].sentence, row[1].subject_entity, row[1].object_entity
+
+        sentence = preprocess_double_quotation(sentence)
+        sentence = preprocess_double_sqbracket(sentence)
+        sentence = preprocess_spaced_comma(sentence)
+        sentence = preprocess_double_dash(sentence)
+        sentence = preprocess_overlapped_bracket(sentence)
+        sentence = preprocess_double_space(sentence)
+        subject_entity, object_entity = fix_entity_index(sentence, subject_entity, object_entity)
+
+        df.loc[idx, 'sentence'] = sentence
+        df.loc[idx, 'subject_entity'] = subject_entity
+        df.loc[idx, 'object_entity'] = object_entity
+
+    return df
+    
 def extract_entity(
     input_df: pd.DataFrame, tokenizer=None, drop_column=False
 ) -> pd.DataFrame:

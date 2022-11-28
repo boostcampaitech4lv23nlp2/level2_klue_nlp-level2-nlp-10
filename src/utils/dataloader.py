@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.dataloader import default_collate
 from transformers import AutoTokenizer
 from utils import *
+from utils.preprocessor import data_cleansing
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -90,6 +91,7 @@ class Dataloader(pl.LightningDataModule):
     def load_data(self, data_path):
         """csv 파일을 경로에 맡게 불러 옵니다."""
         pd_dataset = pd.read_csv(data_path)
+        pd_dataset = data_cleansing(pd_dataset)
         return pd_dataset
 
     def setup(self, stage="fit"):
@@ -144,4 +146,3 @@ class Dataloader(pl.LightningDataModule):
             _, num_label = label_to_num(str_label, self.label_dict_path)
             return tokenized_dataset, num_label
         return tokenized_dataset, None
-
