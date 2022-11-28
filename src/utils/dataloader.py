@@ -4,7 +4,7 @@ from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
 from torch.utils.data.dataloader import default_collate
-from sklearn.model_selection import KFold, StratifiedKFold
+from sklearn.model_selection import StratifiedKFold
 from utils import *
 import pytorch_lightning as pl
 
@@ -253,7 +253,7 @@ class KFoldDataloader(Dataloader):
         self.dataset = KLUEDataset(dataset, labels)
         self.val_dataset = KLUEDataset(dataset, labels)
 
-        kf = KFold(n_splits=self.num_folds, shuffle=True, random_state=self.seed)
+        kf = StratifiedKFold(n_splits=self.num_folds, shuffle=True, random_state=self.seed)
         all_splits = [k for k in kf.split(self.dataset)]
 
         # fold한 index에 따라 데이터셋 분할
