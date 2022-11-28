@@ -13,6 +13,20 @@ def execute_train(conf, version, is_monitor, is_scheduler):
     return
 
 
+def execute_stratified_kfold_train(conf, version, is_monitor, is_scheduler):
+    from train.train_stratified_kfold import main
+
+    main(conf, version, is_monitor, is_scheduler)
+    return
+
+
+def execute_stratified_onefold_train(conf, version, is_monitor, is_scheduler):
+    from train.train_stratified_onefold import main
+
+    main(conf, version, is_monitor, is_scheduler)
+    return
+
+
 def execute_inference(conf, version, model_path, is_checkpoint=False):
     from inference.inference import main
 
@@ -25,7 +39,7 @@ def get_args():
     arg_parser.add_argument(
         "--option",
         required=True,
-        choices=["train", "inference", "voting"],
+        choices=["train", "inference", "train_kfold", "train_stratified"],
         help="학습, 추론 모드 설정",
     )
     arg_parser.add_argument(
@@ -65,6 +79,14 @@ def main():
     set_seed(conf.seed)  # random seed 설정
     if args.option == "train":
         execute_train(conf, args.version, args.is_monitor, args.is_scheduler)
+    elif args.option == "train_kfold":
+        execute_stratified_kfold_train(
+            conf, args.version, args.is_monitor, args.is_scheduler
+        )
+    elif args.option == "train_stratified":
+        execute_stratified_onefold_train(
+            conf, args.version, args.is_monitor, args.is_scheduler
+        )
     elif args.option == "inference":
         if not args.model_path:
             print_msg(

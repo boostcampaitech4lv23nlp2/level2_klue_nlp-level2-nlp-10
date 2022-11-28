@@ -1,15 +1,17 @@
-import os
 import pickle as pickle
-
-import numpy as np
+import os
 import pandas as pd
-import pytorch_lightning as pl
 import torch
+import numpy as np
+
+from utils.dataloader import KLUEDataset, KFoldDataloader, Dataloader
+from utils import *
 from models.metrics import compute_metrics
 from models.model import KLUEModel
+
+import pytorch_lightning as pl
 from pytorch_lightning.loggers import WandbLogger
-from utils import *
-from utils.dataloader import Dataloader, KLUEDataset
+from models.metrics import compute_metrics
 
 
 def main(conf, version, is_monitor, is_scheduler):
@@ -17,26 +19,10 @@ def main(conf, version, is_monitor, is_scheduler):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     save_path = setdir(conf.data_dir, conf.save_dir, reset=False)
 
-    # load dataset & dataloader
-    train_dataloader = Dataloader(
-                            conf.tokenizer_name,
-                            conf.train_data_path,
-                            conf.label_to_num_dict_path, 
-                            max_length = conf.max_length,
-                            validation_data_path = conf.validation_data_path,
-                            batch_size = conf.batch_size,
-                            is_test=False,
-                            validation_split=conf.validation_split,
-                                )
-    # load model
-    model = KLUEModel(
-        conf, device, eval_func=compute_metrics, is_scheduler=is_scheduler
-    )
-    model.to(device)
-
     # learning rate monitoring을 위한 콜백함수 선언
     lr_monitor = pl.callbacks.LearningRateMonitor(logging_interval="step")
     model_name = conf.model_name.replace("/", "_")
+
     if is_monitor == True:
         wandb_logger = WandbLogger(
             project=conf.project_name,
@@ -64,6 +50,24 @@ def main(conf, version, is_monitor, is_scheduler):
         )
 
     # Train part
+    train_dataloader = KFoldDataloader(
+        conf.tokenizer_name,
+        conf.train_data_path,
+        conf.label_to_num_dict_path,
+        seed=conf.seed,
+        max_length=conf.max_length,
+        batch_size=conf.batch_size,
+        is_test=False,
+        k=random.randint(0, conf.num_folds - 1),
+        num_folds=conf.num_folds,
+    )
+
+    model = KLUEModel(
+        conf, device, eval_func=compute_metrics, is_scheduler=is_scheduler
+    )
+    model.to(device)
+
+    # Train part
     print_msg("학습을 시작합니다...", "INFO")
     trainer.fit(model=model, datamodule=train_dataloader)
     print_msg("학습이 종료되었습니다...", "INFO")
@@ -79,3 +83,6 @@ def main(conf, version, is_monitor, is_scheduler):
     model_path = os.path.join(save_path, file_name)
     torch.save(model.state_dict(), model_path)
 
+
+## TODO : 라벨별 분포 확인
+## TODO : roberta-large

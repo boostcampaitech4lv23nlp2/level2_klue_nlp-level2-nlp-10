@@ -14,7 +14,7 @@ def main(conf, version, model_path, is_checkpoint=False):
 
     # load dataset & dataloader
     test_dataloader = Dataloader(
-        conf.model_name,
+        conf.tokenizer_name,
         conf.test_data_path,
         conf.label_to_num_dict_path,
         conf.batch_size,

@@ -6,8 +6,8 @@
 ├─ src
 │  ├─ main.py
 │  ├─ models
-│	 │  ├─ model.py
-│	 │  └─ metric.py
+│  │  ├─ model.py
+│  │  └─ metric.py
 │  ├─ train
 │  │  └─ train.py
 │  ├─ inference
@@ -28,8 +28,11 @@
 ### 실행 방법
 ```shell
 # train version
-python main.py --opt=train --version=[파일 이름]
+python main.py --opt=train --version=[모델 파일 이름]
+
+# one-fold train version
+python main.py --opt=train_stratified --version=[모델 파일 이름]
 
 # inference version
-python inference.py --opt=inference --model_path=[모델 경로]
+python main.py --opt=inference --model_path=[모델 경로] --version=[submission 파일 이름]
 ```

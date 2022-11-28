@@ -8,7 +8,7 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
 )
-
+np.seterr(invalid='ignore')
 
 def klue_re_micro_f1(preds, labels):
     """KLUE-RE micro f1 (except no_relation)"""
@@ -52,17 +52,20 @@ def klue_re_micro_f1(preds, labels):
 
 def klue_re_auprc(probs, labels):
     """KLUE-RE AUPRC (with no_relation)"""
-    labels = np.eye(30)[labels]
-    score = np.zeros((30,))
-
-    for c in range(30):
-        targets_c = labels.take([c], axis=1).ravel()
-        preds_c = probs.take([c], axis=1).ravel()
-        precision, recall, _ = sklearn.metrics.precision_recall_curve(
-            targets_c, preds_c
-        )
-        score[c] = sklearn.metrics.auc(recall, precision)
-    return np.average(score) * 100.0
+    labels = np.eye(probs.shape[-1])[labels]
+    score = np.zeros((probs.shape[-1],))
+    for c in range(probs.shape[-1]):
+        if 1 in labels[:, c]:
+            precision, recall, _ = precision_recall_curve(
+                    labels[:, c], probs[:, c], pos_label=1)
+            score[c] = sklearn.metrics.auc(recall, precision)
+    
+    precision, recall, _ = precision_recall_curve(
+                labels.ravel(), probs.ravel())
+    micro_score = sklearn.metrics.auc(recall, precision)
+    
+    np.where(score == 0, 1, score)
+    return np.average(score) * 100.0, np.average(micro_score) * 100.0
 
 
 def compute_metrics(probs, preds, labels):
@@ -70,12 +73,14 @@ def compute_metrics(probs, preds, labels):
 
     # calculate accuracy using sklearn's function
     f1 = klue_re_micro_f1(preds, labels)
-    auprc = klue_re_auprc(probs, labels)
+    auprc, micro_auprc = klue_re_auprc(probs, labels)
     acc = accuracy_score(labels, preds)
-
+    avg_auprc = (auprc + micro_auprc) / 2
     return {
         "micro f1 score": f1,
         "auprc": auprc,
+        "micro_auprc": micro_auprc,
+        "avg_auprc": avg_auprc,
         "accuracy": acc,
     }
 
