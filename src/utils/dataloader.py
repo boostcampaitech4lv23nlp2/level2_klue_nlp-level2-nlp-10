@@ -15,8 +15,8 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 class KLUEDataset(Dataset):
     """Dataset 구성을 위한 class."""
 
-    def __init__(self, dataset, labels):
-        self.dataset = dataset
+    def __init__(self, data, labels):
+        self.data = data
         self.labels = labels
         self.kfold_index = None
 
@@ -26,7 +26,7 @@ class KLUEDataset(Dataset):
         elif self.labels:
             return len(self.labels)
         else:
-            return len(self.dataset["input_ids"])
+            return len(self.data["input_ids"])
 
     def set_kfold_index(self, indexes):
         self.kfold_index = indexes
@@ -41,7 +41,7 @@ class KLUEDataset(Dataset):
             item_idx = idx
 
         data = {
-            key: val[item_idx].clone().detach() for key, val in self.dataset.items()
+            key: val[item_idx].clone().detach() for key, val in self.data.items()
         }
         if self.labels:
             labels = torch.tensor(self.labels[item_idx])
@@ -254,7 +254,7 @@ class KFoldDataloader(Dataloader):
         self.val_dataset = KLUEDataset(dataset, labels)
 
         kf = StratifiedKFold(n_splits=self.num_folds, shuffle=True, random_state=self.seed)
-        all_splits = [k for k in kf.split(self.dataset)]
+        all_splits = [k for k in kf.split(self.dataset, labels)]
 
         # fold한 index에 따라 데이터셋 분할
         train_indexes, val_indexes = all_splits[self.k]
