@@ -1,9 +1,10 @@
 seed: 3431
 project_name: "baseline"
-tokenizer_name: "klue/roberta-large"
+custom_tokenizer: True
+tokenizer_name: "../tokenizers/roberta_large"
 model_name: "klue/roberta-large"
 num_labels: 30
-    
+
 train_data_path: "../data/train/train.csv"
 validation_data_path: ""
 test_data_path: "../data/test/test_data.csv"
