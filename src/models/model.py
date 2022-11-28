@@ -26,7 +26,7 @@ class KLUEModel(pl.LightningModule):
         self._device = device
         self.lr = conf.lr
         self.plm = AutoModelForSequenceClassification.from_pretrained(
-            conf.model_name, config=model_config
+            conf.model_name, config=model_config, local_files_only=True
         )
         self.eval_func = eval_func
         self.criterion = nn.CrossEntropyLoss(ignore_index=-1)

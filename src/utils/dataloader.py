@@ -7,7 +7,7 @@ from torch.utils.data.dataloader import default_collate
 from sklearn.model_selection import StratifiedKFold
 from utils import *
 import pytorch_lightning as pl
-
+from utils.preprocessor import data_cleansing
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -77,7 +77,7 @@ class Dataloader(pl.LightningDataModule):
         self.is_test = is_test
         self.max_length = max_length
         self.tokenizer = AutoTokenizer.from_pretrained(
-            tokenizer_name, max_length=self.max_length
+            tokenizer_name, max_length=self.max_length, local_files_only=True
         )
         self.batch_size = batch_size
         self.label_dict_path = label_dict_path
