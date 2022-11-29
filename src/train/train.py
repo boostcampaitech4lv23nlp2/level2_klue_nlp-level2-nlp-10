@@ -34,8 +34,9 @@ def main(conf, version, is_monitor, is_scheduler):
     )
     model.to(device)
 
-    # checkpoint 
-    ckpt_dirpath = setdir(conf.data_dir, 'ckpt', reset=False)
+    # checkpoint
+    ckpt_folder_name = f'ckpt_{conf.run_name}'
+    ckpt_dirpath = setdir(conf.data_dir, ckpt_folder_name, reset=False)
     checkpoint_callback = pl.callbacks.ModelCheckpoint(filename='{epoch:02d}_{micro_f1_score:.3f}',
                                                   save_top_k=3, dirpath=ckpt_dirpath, monitor='micro_f1_score', mode='max')
 
