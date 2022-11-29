@@ -137,7 +137,7 @@ class Dataloader(pl.LightningDataModule):
     def load_data(self, data_path):
         """csv 파일을 경로에 맡게 불러 옵니다."""
         pd_dataset = pd.read_csv(data_path)
-        pd_dataset = data_cleansing(pd_dataset)
+        # pd_dataset = data_cleansing(pd_dataset)
         return pd_dataset
 
     def setup(self, stage="fit"):
