@@ -77,7 +77,7 @@ def compute_metrics(probs, preds, labels):
     acc = accuracy_score(labels, preds)
     avg_auprc = (auprc + micro_auprc) / 2
     return {
-        "micro f1 score": f1,
+        "micro_f1_score": f1,
         "auprc": auprc,
         "micro_auprc": micro_auprc,
         "avg_auprc": avg_auprc,
