@@ -34,6 +34,11 @@ def main(conf, version, is_monitor, is_scheduler):
     )
     model.to(device)
 
+    # checkpoint 
+    ckpt_dirpath = setdir(conf.data_dir, 'ckpt', reset=False)
+    checkpoint_callback = pl.callbacks.ModelCheckpoint(filename='{epoch:02d}_{micro_f1_score:.3f}',
+                                                  save_top_k=3, dirpath=ckpt_dirpath, monitor='micro_f1_score', mode='max')
+
     # learning rate monitoring을 위한 콜백함수 선언
     lr_monitor = pl.callbacks.LearningRateMonitor(logging_interval="step")
     model_name = conf.model_name.replace("/", "_")
@@ -41,6 +46,7 @@ def main(conf, version, is_monitor, is_scheduler):
         wandb_logger = WandbLogger(
             project=conf.project_name,
             entity="boost2end",
+            name=conf.run_name,
             save_dir=os.path.join(conf.data_dir, conf.wandb_dir),
         )
         trainer = pl.Trainer(
@@ -50,7 +56,7 @@ def main(conf, version, is_monitor, is_scheduler):
             log_every_n_steps=1,
             logger=wandb_logger,
             precision=16,
-            callbacks=[lr_monitor],
+            callbacks=[lr_monitor, checkpoint_callback],
         )
     else:
         # gpu가 없으면 'gpus=0'을, gpu가 여러개면 'gpus=4'처럼 사용하실 gpu의 개수를 입력해주세요
@@ -60,7 +66,7 @@ def main(conf, version, is_monitor, is_scheduler):
             max_epochs=conf.max_epoch,
             log_every_n_steps=1,
             precision=16,
-            callbacks=[lr_monitor],
+            callbacks=[lr_monitor, checkpoint_callback],
         )
 
     # Train part

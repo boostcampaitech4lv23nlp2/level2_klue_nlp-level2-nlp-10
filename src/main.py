@@ -61,7 +61,7 @@ def get_args():
         "--is_scheduler", required=False, default=True, help="scheduler 사용 여부 판단"
     )
     arg_parser.add_argument(
-        "--is_checkpoint", required=False, default=False, help="checkpoint 파일 사용 여부 판단"
+        "--is_checkpoint", required=False, default=True, help="checkpoint 파일 사용 여부 판단"
     )
     arg_parser.add_argument(
         "--submission_files", default=[], nargs="+", help="Ensemble voting submissions"

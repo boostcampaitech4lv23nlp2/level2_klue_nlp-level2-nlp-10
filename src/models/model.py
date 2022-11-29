@@ -10,7 +10,6 @@ from transformers import (
 )
 
 
-# FIXME : comput_metrics가 실행되지 않음
 class KLUEModel(pl.LightningModule):
     def __init__(self, conf, device, eval_func=None, is_scheduler=False):
         """
@@ -21,6 +20,7 @@ class KLUEModel(pl.LightningModule):
             is_scheduler (bool): scheduler 사용 여부. Defaults to None.
         """
         super().__init__()
+        self.save_hyperparameters()
         model_config = AutoConfig.from_pretrained(conf.model_name)
         model_config.num_labels = conf.num_labels
         self._device = device
@@ -53,14 +53,15 @@ class KLUEModel(pl.LightningModule):
         if self.eval_func:
             probs = F.softmax(logits, dim=1)
             preds = torch.argmax(logits, 1)
-            self.log(
-                "val_metric",
-                self.eval_func(
+            ret = self.eval_func(
                     probs.squeeze().cpu().detach().numpy(),
                     preds.squeeze().cpu().detach().numpy(),
                     y.squeeze().cpu().detach().numpy(),
-                ),
-            )
+                )
+            self.log("micro_f1_score", ret["micro_f1_score"])
+            self.log("auprc", ret["auprc"])
+            self.log("accuracy", ret["accuracy"])
+            
         return loss
 
     def test_step(self, batch, batch_idx):
@@ -72,14 +73,15 @@ class KLUEModel(pl.LightningModule):
         if self.eval_func:
             probs = F.softmax(logits, dim=1)
             preds = torch.argmax(logits, 1)
-            self.log(
-                "test_metric",
-                self.eval_func(
+            ret = self.eval_func(
                     probs.squeeze().cpu().detach().numpy(),
                     preds.squeeze().cpu().detach().numpy(),
                     y.squeeze().cpu().detach().numpy(),
-                ),
-            )
+                )
+           
+            self.log("micro_f1_score", ret["micro_f1_score"])
+            self.log("auprc", ret["auprc"])
+            self.log("accuracy", ret["accuracy"])
         return logits
 
     def predict_step(self, batch, batch_idx):
