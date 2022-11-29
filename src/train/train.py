@@ -36,7 +36,7 @@ def main(conf, version, is_monitor, is_scheduler):
 
     # checkpoint 
     ckpt_dirpath = setdir(conf.data_dir, 'ckpt', reset=False)
-    checkpoint_callback = pl.callbacks.ModelCheckpoint(filename='{model_name}_{epoch:02d}_{micro_f1_score:.3f}',
+    checkpoint_callback = pl.callbacks.ModelCheckpoint(filename='{epoch:02d}_{micro_f1_score:.3f}',
                                                   save_top_k=3, dirpath=ckpt_dirpath, monitor='micro_f1_score', mode='max')
 
     # learning rate monitoring을 위한 콜백함수 선언
