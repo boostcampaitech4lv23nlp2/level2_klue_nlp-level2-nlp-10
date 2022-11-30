@@ -79,6 +79,7 @@ class Dataloader(pl.LightningDataModule):
         self.tokenizer = AutoTokenizer.from_pretrained(
             tokenizer_name, max_length=self.max_length, local_files_only=True
         )
+        # self.tokenizer.add_special_tokens({"additional_special_tokens": list(TYPE_TOKENS.values())})
         self.batch_size = batch_size
         self.label_dict_path = label_dict_path
 
@@ -170,16 +171,16 @@ class Dataloader(pl.LightningDataModule):
     def tokenize_dataset(self, dataset):
         """tokenizer에 따라 sentence를 tokenizing 합니다."""
 
-        """Baseline code
+        # Baseline code
         concat_entity = []
         for e01, e02 in zip(dataset["subject_entity"], dataset["object_entity"]):
             temp = ""
             temp = e01 + "[SEP]" + e02
             concat_entity.append(temp)
-        """
-        self.tokenizer.add_special_tokens({"additional_special_tokens": list(TYPE_TOKENS.values())})
+        
+        
         tokenized_sentences = self.tokenizer(
-            # concat_entity,
+            concat_entity,
             list(dataset["sentence"]),
             return_tensors="pt",
             padding=True,
@@ -193,7 +194,7 @@ class Dataloader(pl.LightningDataModule):
     def preprocessing(self, dataset):
         """처음 불러온 csv 파일을 원하는 형태의 DataFrame으로 변경 시켜줍니다."""
 
-        """Baseline code
+        # Baseline code
         subject_entity = []
         object_entity = []
         for i, j in zip(dataset["subject_entity"], dataset["object_entity"]):
@@ -211,10 +212,10 @@ class Dataloader(pl.LightningDataModule):
                 "label": dataset["label"],
             }
         )
-        """
+         
 
-        dataset = extract_entity(dataset, drop_column=True)
-        out_dataset = entity_tagging(dataset)
+        # dataset = extract_entity(dataset, drop_column=True)
+        # out_dataset = entity_tagging(dataset)
         tokenized_dataset = self.tokenize_dataset(out_dataset)
 
         if not self.is_test:
