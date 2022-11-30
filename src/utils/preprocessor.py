@@ -1,6 +1,25 @@
 import re
-
 import pandas as pd
+import numpy as np
+
+TYPE_TOKENS = dict(
+    subject_per_start="<subj:PER>",
+    subject_org_start="<subj:ORG>",
+    subject_per_end="</subj:PER>",
+    subject_org_end="</subj:ORG>",
+    object_per_start="<obj:PER>",
+    object_org_start="<obj:ORG>",
+    object_loc_start="<obj:LOC>",
+    object_dat_start="<obj:DAT>",
+    object_poh_start="<obj:POH>",
+    object_noh_start="<obj:NOH>",
+    object_per_end="</obj:PER>",
+    object_org_end="</obj:ORG>",
+    object_loc_end="</obj:LOC>",
+    object_dat_end="</obj:DAT>",
+    object_poh_end="</obj:POH>",
+    object_noh_end="</obj:NOH>",
+)
 
 def fix_entity_index(
     sentence: str, subject_entity: str, object_entity: str
@@ -204,4 +223,60 @@ def extract_entity(
                 df[col_name] = df[col_name].astype("int")
     if drop_column:
         df = df.drop(["subject_entity", "object_entity"], axis=1)
+    return df
+
+def entity_tagging(
+    dataset: pd.DataFrame, 
+) -> pd.DataFrame:
+    """
+    sentence에 entity type token을 추가하여 전처리합니다.
+    -  〈Something〉는 <obj:PER>조지 해리슨</obj:PER>이 쓰고 <subj:ORG>비틀즈</subj:ORG>가 1969년 앨범
+    """
+    df = dataset.copy()
+    data_np = dataset.to_numpy() # numpy로 데이터 탐색
+    data_np = np.transpose(data_np)
+    
+    # data_np의 인덱스입니다
+    # 0:'id', 1:'sentence', 2:'label', 3:'source', 4:'subject_word', 5:'subject_start_idx',
+    # 6:'subject_end_idx', 7:'subject_type', 8:'object_word', 9:'object_start_idx',
+    # 10:'object_end_idx', 11:'object_type')
+
+    for i in df.index:
+        subject_start_marker = f"<subj:{data_np[7][i]}>"
+        subject_end_marker   = f"</subj:{data_np[7][i]}>"
+        object_start_marker  = f"<obj:{data_np[11][i]}>"
+        object_end_marker    = f"</obj:{data_np[11][i]}>"
+        
+        if "'" in data_np[8][i]: # (')이 포함된 문장 전처리
+            data_np[8][i] = data_np[8][i].strip('"')
+            
+        sent = data_np[1][i]
+        
+        if data_np[5][i] < data_np[9][i]:  # subject가 object보다 앞에 있는 겨우
+            tmp = (sent[0:data_np[5][i]] + subject_start_marker + data_np[4][i] + subject_end_marker +
+                   sent[data_np[6][i]+1:data_np[9][i]] + object_start_marker + data_np[8][i] + object_end_marker + sent[data_np[10][i]+1:-1])
+            
+            data_np[5][i] += len(subject_start_marker) # subject_start_idx
+            data_np[6][i] += len(subject_start_marker) # subject_end_idx
+            data_np[9][i] += len(subject_start_marker + subject_end_marker + object_start_marker) # object_start_idx
+            data_np[10][i] += len(subject_start_marker + subject_end_marker + object_start_marker) # object_end_idx
+            
+        else:  # object가 subject보다 앞에 있는 경우
+            tmp = (sent[0:data_np[9][i]] + object_start_marker + data_np[8][i] + object_end_marker +
+                   sent[data_np[10][i]+1:data_np[5][i]] + subject_start_marker + data_np[4][i] + subject_end_marker + sent[data_np[6][i]+1:-1])
+
+            data_np[5][i] += len(object_start_marker + object_end_marker + subject_start_marker) # subject_start_idx
+            data_np[6][i] += len(object_start_marker + object_end_marker + subject_start_marker) # subject_end_idx
+            data_np[9][i] += len(object_start_marker) # object_start_idx
+            data_np[10][i] += len(object_start_marker) # object_end_idx 
+            
+        str_tmp = "".join(tmp)
+        data_np[1][i] = str_tmp # sentence
+        
+    df["sentence"] = data_np[1]
+    df["subject_start_idx"] = data_np[5]
+    df["subject_end_idx"] = data_np[6]
+    df["object_start_idx"] = data_np[9]
+    df["object_end_idx"] = data_np[10]
+
     return df

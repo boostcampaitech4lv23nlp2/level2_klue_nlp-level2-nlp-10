@@ -28,6 +28,7 @@ class KLUEModel(pl.LightningModule):
         self.plm = AutoModelForSequenceClassification.from_pretrained(
             conf.model_name, config=model_config, local_files_only=True
         )
+        # self.plm.resize_token_embeddings(model_config.vocab_size + 16)
         self.eval_func = eval_func
         self.criterion = nn.CrossEntropyLoss(ignore_index=-1)
         self.is_scheduler = is_scheduler
