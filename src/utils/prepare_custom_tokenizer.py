@@ -33,11 +33,30 @@ def get_unk_tokens(
     return list(OrderedDict.fromkeys(unk_token_lst))
 
 
-def add_unk_tokens_to_vocab(dirpath, unk_tokens: List[str]) -> None:
-    vocab_path = os.path.join(dirpath, "vocab.txt")
-    with open(vocab_path, "a") as f:
+def add_unk_tokens_to_vocab(args, unk_tokens: List[str]) -> None:
+    tokenizer_path = args.tokenizer_name.replace("/", "_").replace("-", "_")
+    vocab_path = os.path.join(tokenizer_path, "vocab.txt")
+    vocab = os.path.join(args.custom_tokenizers_path, vocab_path)
+    with open(vocab, "a") as f:
         for token in unk_tokens:
             f.write(token + "\n")
+
+
+def add_unk_tokens_to_tokenizer(args, unk_tokens: List[str]) -> None:
+    tokenizer_path = args.tokenizer_name.replace("/", "_").replace("-", "_")
+    tokenizer_config_path = os.path.join(tokenizer_path, "tokenizer.json")
+    tokenizer_config = os.path.join(args.custom_tokenizers_path, tokenizer_config_path)
+    with open(tokenizer_config, "r") as f:
+        data = json.load(f)
+
+    vocab_size = len(data["model"]["vocab"])
+    added_token_num = len(unk_tokens)
+    new_vocab_index = list(range(vocab_size, vocab_size + added_token_num))
+    for idx, tokens in zip(new_vocab_index, unk_tokens):
+        data["model"]["vocab"][tokens] = idx
+
+    with open(tokenizer_config, "w") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
 
 
 def get_args():
@@ -57,7 +76,7 @@ def get_args():
     arg_parser.add_argument(
         "--custom_tokenizers_path",
         required=False,
-        default="../../tokenizers",
+        default="../../tokenizers/",
         help="directory path of custom tokenizers configuration",
     )
 
@@ -71,7 +90,8 @@ def main():
 
     indices = get_unk_sentences_idx(df, tokenizer)
     result = get_unk_tokens(df, tokenizer, indices)
-    add_unk_tokens_to_vocab(args.custom_tokenizers_path, result)
+    add_unk_tokens_to_vocab(args, result)
+    add_unk_tokens_to_tokenizer(args, result)
 
 
 if __name__ == "__main__":
