@@ -66,8 +66,6 @@ def main(conf, version, is_monitor, is_scheduler):
         conf, device, eval_func=compute_metrics, is_scheduler=is_scheduler
     )
     model.to(device)
-    if conf.custom_tokenizer:
-        model.plm.resize_token_embeddings(train_dataloader.tokenizer.vocab_size)
 
     # Train part
     print_msg("학습을 시작합니다...", "INFO")

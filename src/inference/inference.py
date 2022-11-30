@@ -23,9 +23,6 @@ def main(conf, version, model_path, is_checkpoint=False):
     # load model
     model = KLUEModel(conf, device)
 
-    if conf.custom_tokenizer:
-        model.plm.resize_token_embeddings(test_dataloader.tokenizer.vocab_size)
-
     if is_checkpoint:
         model = model.load_from_checkpoint(model_path)
     else:
