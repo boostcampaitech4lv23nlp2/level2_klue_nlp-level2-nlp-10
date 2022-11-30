@@ -97,6 +97,7 @@ class Dataloader(pl.LightningDataModule):
             else DataLoader(
                 self.dataset,
                 batch_size=self.batch_size,
+                shuffle=True,
                 num_workers=4,
                 collate_fn=default_collate,
             )
