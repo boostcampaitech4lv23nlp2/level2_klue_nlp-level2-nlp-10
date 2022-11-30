@@ -30,6 +30,7 @@ class KLUEModel(pl.LightningModule):
         )
         self.eval_func = eval_func
         self.criterion = nn.CrossEntropyLoss(ignore_index=-1)
+        # self.criterion = FocalLoss()
         self.is_scheduler = is_scheduler
 
     def forward(self, x):
