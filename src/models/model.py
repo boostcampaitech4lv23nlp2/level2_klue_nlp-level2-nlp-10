@@ -6,6 +6,7 @@ import torch.nn.functional as F
 from transformers import (
     AutoConfig,
     AutoModelForSequenceClassification,
+    AutoTokenizer,
     T5ForConditionalGeneration,
 )
 
@@ -25,9 +26,14 @@ class KLUEModel(pl.LightningModule):
         model_config.num_labels = conf.num_labels
         self._device = device
         self.lr = conf.lr
+        self.max_length = conf.max_length
         self.plm = AutoModelForSequenceClassification.from_pretrained(
             conf.model_name, config=model_config, local_files_only=True
         )
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            conf.tokenizer_name, max_length=self.max_length
+        )
+        self.plm.resize_token_embeddings(self.tokenizer.vocab_size)
         # self.plm.resize_token_embeddings(model_config.vocab_size + 16)
         self.eval_func = eval_func
         self.criterion = nn.CrossEntropyLoss(ignore_index=-1)
@@ -54,14 +60,13 @@ class KLUEModel(pl.LightningModule):
             probs = F.softmax(logits, dim=1)
             preds = torch.argmax(logits, 1)
             ret = self.eval_func(
-                    probs.squeeze().cpu().detach().numpy(),
-                    preds.squeeze().cpu().detach().numpy(),
-                    y.squeeze().cpu().detach().numpy(),
-                )
+                probs.squeeze().cpu().detach().numpy(),
+                preds.squeeze().cpu().detach().numpy(),
+                y.squeeze().cpu().detach().numpy(),
+            )
             self.log("micro_f1_score", ret["micro_f1_score"])
             self.log("auprc", ret["auprc"])
             self.log("accuracy", ret["accuracy"])
-            
         return loss
 
     def test_step(self, batch, batch_idx):
@@ -74,11 +79,10 @@ class KLUEModel(pl.LightningModule):
             probs = F.softmax(logits, dim=1)
             preds = torch.argmax(logits, 1)
             ret = self.eval_func(
-                    probs.squeeze().cpu().detach().numpy(),
-                    preds.squeeze().cpu().detach().numpy(),
-                    y.squeeze().cpu().detach().numpy(),
-                )
-           
+                probs.squeeze().cpu().detach().numpy(),
+                preds.squeeze().cpu().detach().numpy(),
+                y.squeeze().cpu().detach().numpy(),
+            )
             self.log("micro_f1_score", ret["micro_f1_score"])
             self.log("auprc", ret["auprc"])
             self.log("accuracy", ret["accuracy"])
@@ -100,4 +104,3 @@ class KLUEModel(pl.LightningModule):
             return [optimizer], [lr_scheduler]
         else:
             return optimizer
-
