@@ -1,11 +1,10 @@
 seed: 3431
 project_name: "baseline"
-custom_tokenizer: True
 run_name: "test"
-tokenizer_name: "../tokenizers/roberta_large"
+tokenizer_name: "../tokenizers/klue_roberta_large"
 model_name: "klue/roberta-large"
 num_labels: 30
-    
+
 train_data_path: "../data/fixed_train_dataset.csv"
 validation_data_path: "../data/fixed_dev_dataset.csv"
 test_data_path: "../data/test/test_data.csv"
@@ -19,7 +18,7 @@ save_dir: "saved"
 wandb_dir: "wandb_checkpoints"
 submission_dir: "submissions"
 
-max_epoch: 5
+max_epoch: 10
 batch_size: 32
 max_length: 256
 shuffle: True
