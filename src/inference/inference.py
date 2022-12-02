@@ -22,6 +22,7 @@ def main(conf, version, model_path, is_checkpoint=False):
     )
     # load model
     model = KLUEModel(conf, device)
+
     if is_checkpoint:
         model = model.load_from_checkpoint(model_path)
     else:

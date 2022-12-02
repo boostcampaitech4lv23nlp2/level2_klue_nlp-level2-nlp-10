@@ -54,7 +54,7 @@ def main(conf, version, is_monitor, is_scheduler):
         model = KLUEModel(conf, device, eval_func = compute_metrics, 
                                     is_scheduler = is_scheduler)
         model.to(device)
-        
+
         print_msg(f'fold {k} 학습을 시작합니다...', 'INFO')
         trainer.fit(model=model, datamodule=train_dataloader)
         print_msg(f'fold {k} 학습이 종료되었습니다...', 'INFO')
