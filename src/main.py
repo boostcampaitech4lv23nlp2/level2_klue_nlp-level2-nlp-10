@@ -28,7 +28,7 @@ def execute_stratified_onefold_train(conf, version, is_monitor, is_scheduler):
 
 
 def execute_inference(conf, version, model_path, is_checkpoint=False):
-    from inference.inference import main
+    from inference import main
 
     main(conf, version, model_path, is_checkpoint)
     return
