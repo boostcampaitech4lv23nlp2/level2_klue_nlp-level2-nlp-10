@@ -83,6 +83,3 @@ def main(conf, version, is_monitor, is_scheduler):
     model_path = os.path.join(save_path, file_name)
     torch.save(model.state_dict(), model_path)
 
-
-## TODO : 라벨별 분포 확인
-## TODO : roberta-large
