@@ -48,7 +48,7 @@
         │     ├─ preprocessor.py
         │     └─ prepare_custom_tokenizer.py
         ├─ notebooks
-        |  └─ EDAs.ipynb
+        │  └─ EDAs.ipynb
         ├─ data
         ├─ tokenizers
         │  ├─ klue_bert_base
@@ -59,7 +59,7 @@
         │  └─ Testcode_Datacleansing .ipynb
         └─ requirements.txt
         └─ .gitignore
-        ```
+    ```
         
 - **데이터셋 구조**
         
