@@ -80,30 +80,30 @@
 
 ## Contributors
 
-- **김남규 : 데이터 팀**
+- **김남규 [(Github)](https://github.com/manstar1201) : 데이터 팀**
     - EDA
     - 문장 내 중복 및 손실 데이터 전처리
     - Masked Language Modeling을 통한 데이터 증강
     
-- **김산 : 모델링 팀**
+- **김산 [(Github)](https://github.com/jtlsan) : 모델링 팀**
     - 주어진 데이터셋에 모델을 적응시키기 위한 domain adaptation 구현
     - KE-T5 모델을 사용한 성능 비교
     - soft-voting을 적용한 앙상블 구현
     
-- **엄주언 : 프로젝트 전체 구성, 코드 및 이슈 관리팀, 학습 개선팀**
+- **엄주언 [(Github)](https://github.com/EJueon) : 프로젝트 전체 구성, 코드 및 이슈 관리팀, 학습 개선팀**
     - 협업 및 재사용성을 위한 프로젝트 코드 구성 / 협업을 위한 템플릿 구성
     - wandb 설정 및 scheduler, checkpoint 등의 구현을 통한 실험 환경 조성
     - 프로젝트 코드의 전반적인 이슈와 코드 관리를 진행하였음
     - 학습 개선을 위한 stratified-kfold 기법과 focal loss 기법 적용
     
-- **이동찬 : 데이터 팀, 코드 및 이슈 관리팀, 실험 관리팀**
+- **이동찬 [(Github)](https://github.com/DongChan-Lee) : 데이터 팀, 코드 및 이슈 관리팀, 실험 관리팀**
     - 전체적인 프로젝트 실험 계획 수립 및 성능 개선을 위한 아이디어 제안
     - KLUE RE 데이터셋에 맞게 BERT wordpiece vocab을 customizing하여 [UNK] token이 발생하지 않도록 처리
     - 최종적으로 각자가 진행한 부분을 합쳐서 모델링
     - 데이터 EDA 및 전처리 방향 설정
     - Linux Server에서 Anaconda 가상환경 자동 설정하는 shell script 구성하여 실험 관리 용이성 확보
     
-- **이정현 : 데이터 팀**
+- **이정현 [(Github)](https://github.com/Jlnus) : 데이터 팀**
     - 데이터 EDA를 통해 entity type과 label의 관계 확인
     - 학습 성능 향상을 위해 entity type 정보를 tagging하여 전처리
 
