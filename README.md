@@ -85,7 +85,7 @@
     - 문장 내 중복 및 손실 데이터 전처리
     - Masked Language Modeling을 통한 데이터 증강
     
-- **김산 [(Github)](https://github.com/jtlsan) : 모델링 팀**
+- **김산 [(Github)](https://github.com/mountinyy) : 모델링 팀**
     - 주어진 데이터셋에 모델을 적응시키기 위한 domain adaptation 구현
     - KE-T5 모델을 사용한 성능 비교
     - soft-voting을 적용한 앙상블 구현
